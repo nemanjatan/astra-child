@@ -187,6 +187,41 @@ add_action( 'admin_init', 'mlc_setup_font_files' );
 add_action( 'wp_loaded', 'mlc_setup_font_files' );
 
 /**
+ * Preload critical fonts FIRST to break dependency chain
+ * These must load before CSS that references them
+ */
+function mlc_preload_critical_fonts_early() {
+    if ( ! mlc_is_landing_page() ) {
+        return;
+    }
+    
+    $fonts_dir = get_stylesheet_directory_uri() . '/fonts/';
+    
+    // Preload critical fonts FIRST (before CSS loads)
+    // Font Awesome 5 Free (Solid) - used by .fa and .fas
+    if ( file_exists( get_stylesheet_directory() . '/fonts/fa-solid-900.woff2' ) ) {
+        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'fa-solid-900.woff2' ) . '" as="font" type="font/woff2" crossorigin fetchpriority="high">' . "\n";
+    }
+    
+    // Elementor Icons (eicons) - used by Elementor
+    if ( file_exists( get_stylesheet_directory() . '/fonts/eicons.woff2' ) ) {
+        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'eicons.woff2' ) . '" as="font" type="font/woff2" crossorigin fetchpriority="high">' . "\n";
+    }
+    
+    // Font Awesome 5 Brands - used by .fab
+    if ( file_exists( get_stylesheet_directory() . '/fonts/fa-brands-400.woff2' ) ) {
+        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'fa-brands-400.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+    }
+    
+    // Element Pack Icons - used by Element Pack plugin
+    if ( file_exists( get_stylesheet_directory() . '/fonts/element-pack.woff2' ) ) {
+        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'element-pack.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+    }
+}
+// Use negative priority to ensure this runs FIRST, before other head actions
+add_action( 'wp_head', 'mlc_preload_critical_fonts_early', -10 );
+
+/**
  * Add preconnect hints for critical third-party domains
  */
 function mlc_add_preconnect_hints() {
@@ -226,37 +261,6 @@ function mlc_preload_lcp_image() {
 }
 add_action( 'wp_head', 'mlc_preload_lcp_image', 0 );
 
-/**
- * Preload Font Awesome fonts for better performance
- */
-function mlc_preload_font_awesome_fonts() {
-    if ( ! mlc_is_landing_page() ) {
-        return;
-    }
-    
-    $fonts_dir = get_stylesheet_directory_uri() . '/fonts/';
-    
-    // Font Awesome 5 Free (Solid) - used by .fa and .fas
-    if ( file_exists( get_stylesheet_directory() . '/fonts/fa-solid-900.woff2' ) ) {
-        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'fa-solid-900.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
-    }
-    
-    // Font Awesome 5 Brands - used by .fab
-    if ( file_exists( get_stylesheet_directory() . '/fonts/fa-brands-400.woff2' ) ) {
-        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'fa-brands-400.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
-    }
-    
-    // Elementor Icons (eicons) - used by Elementor
-    if ( file_exists( get_stylesheet_directory() . '/fonts/eicons.woff2' ) ) {
-        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'eicons.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
-    }
-    
-    // Element Pack Icons - used by Element Pack plugin
-    if ( file_exists( get_stylesheet_directory() . '/fonts/element-pack.woff2' ) ) {
-        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'element-pack.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
-    }
-}
-add_action( 'wp_head', 'mlc_preload_font_awesome_fonts', 0 );
 
 /**
  * Inline critical CSS in the head section
@@ -336,6 +340,7 @@ function mlc_remove_css_by_url( $tag, $handle, $href ) {
         '/bdt-uikit\.css/i',
         '/roboto\.css/i',
         '/robotoslab\.css/i',
+        '/opensans\.css/i',
         '/\/astra\/assets\/css\/minified\/style\.min\.css/i',
         '/\/themes\/astra\/style\.css/i',
         '/\/themes\/astra-child\/style\.css/i',
@@ -345,6 +350,8 @@ function mlc_remove_css_by_url( $tag, $handle, $href ) {
         '/brands\.min\.css/i',
         '/solid\.min\.css/i',
         '/\/cache\/fonts\/.*\/google-fonts\/css\/.*\.css/i',
+        '/\/cache\/[^\/]+\/[^\/]+\/.*\.css/i', // Catch cached CSS files (like a/a0a33f5….css)
+        '/\/cache\/.*\/css\/.*\.css/i', // Catch any CSS in cache directories
         '/astra-addon-[^\/]*\.css/i',
         '/custom-frontend\.min\.css/i',
         '/custom-pro-widget-call-to-action\.min\.css/i',
@@ -397,6 +404,57 @@ function mlc_enqueue_deferred_css_loader() {
     );
 }
 add_action( 'wp_enqueue_scripts', 'mlc_enqueue_deferred_css_loader' );
+
+/**
+ * Remove render-blocking CSS from HTML output using output buffering
+ * This catches CSS files that might bypass the style_loader_tag filter
+ */
+function mlc_remove_render_blocking_css_output( $buffer ) {
+    if ( ! mlc_is_landing_page() ) {
+        return $buffer;
+    }
+    
+    // Remove opensans.css
+    $buffer = preg_replace(
+        '/<link[^>]*href=["\'][^"\']*opensans\.css[^"\']*["\'][^>]*>/i',
+        '',
+        $buffer
+    );
+    
+    // Remove cached CSS files with hash-like names (like /cache/a/a0a33f5….css)
+    // Pattern: /cache/[single-char]/[hash].css
+    $buffer = preg_replace(
+        '/<link[^>]*href=["\'][^"\']*\/cache\/[a-z0-9]+\/[a-f0-9]+[^"\']*\.css[^"\']*["\'][^>]*>/i',
+        '',
+        $buffer
+    );
+    
+    return $buffer;
+}
+
+/**
+ * Start output buffering to catch and remove render-blocking CSS
+ */
+function mlc_start_output_buffer() {
+    if ( ! mlc_is_landing_page() ) {
+        return;
+    }
+    ob_start( 'mlc_remove_render_blocking_css_output' );
+}
+add_action( 'template_redirect', 'mlc_start_output_buffer', 1 );
+
+/**
+ * End output buffering
+ */
+function mlc_end_output_buffer() {
+    if ( ! mlc_is_landing_page() ) {
+        return;
+    }
+    if ( ob_get_level() > 0 ) {
+        ob_end_flush();
+    }
+}
+add_action( 'wp_footer', 'mlc_end_output_buffer', 999 );
 
 /**
  * Add fetchpriority="high" to LCP image in static hero section

@@ -9,6 +9,7 @@
         /bdt-uikit\.css/i,
         /roboto\.css/i,
         /robotoslab\.css/i,
+        /opensans\.css/i,
         /\/astra\/assets\/css\/minified\/style\.min\.css/i,
         /\/themes\/astra\/style\.css/i,
         /\/themes\/astra-child\/style\.css/i,
@@ -18,6 +19,8 @@
         /brands\.min\.css/i,
         /solid\.min\.css/i,
         /\/cache\/fonts\/.*\/google-fonts\/css\/.*\.css/i,
+        /\/cache\/[^\/]+\/[^\/]+\/.*\.css/i, // Catch cached CSS files (like a/a0a33f5….css)
+        /\/cache\/.*\/css\/.*\.css/i, // Catch any CSS in cache directories
         /astra-addon-[^\/]*\.css/i,
         /custom-frontend\.min\.css/i,
         /custom-pro-widget-call-to-action\.min\.css/i,

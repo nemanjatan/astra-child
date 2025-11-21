@@ -3852,3 +3852,7 @@ ul.elementor-nav-menu--dropdown a,ul.elementor-nav-menu--dropdown a:focus,ul.ele
     opacity: 1;
     margin: 20px !important;
 }
+
+.elementor-element-a90cdde .elementor-cta__button.elementor-button {
+    background: transparent !important;
+}
