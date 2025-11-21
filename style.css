@@ -1,0 +1,20 @@
+/**
+ * Theme Name: Astra Child
+ * Theme URI: https://wpastra.com/
+ * Description: Child theme for Astra theme. Use this theme to make custom modifications.
+ * Author: Nemanja Tanaskovic
+ * Author URI: https://nemanjatanaskovic.com/
+ * Template: astra
+ * Version: 1.0.7
+ * License: GNU General Public License v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: astra-child
+ */
+
+/* Add your custom styles below this line */
+
+/* Hide WP Rocket from admin bar */
+#wp-admin-bar-wp-rocket {
+    display: none !important;
+}
+
