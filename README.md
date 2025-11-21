@@ -1,3 +1,5 @@
+There are 38 css files
+
 Optimized css so far:
 https://www.mlc-cad.com/wp-content/cache/min/1/wp-content/plugins/bdthemes-element-pack/assets/css
 /bdt-uikit.css?ver=1763727745

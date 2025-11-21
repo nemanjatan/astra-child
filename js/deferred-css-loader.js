@@ -8,8 +8,25 @@
     const cssPatterns = [
         /bdt-uikit\.css/i,
         /roboto\.css/i,
+        /robotoslab\.css/i,
         /\/astra\/assets\/css\/minified\/style\.min\.css/i,
-        /font-awesome[^\/]*\/css\/all\.min\.css/i
+        /\/themes\/astra\/style\.css/i,
+        /font-awesome[^\/]*\/css\/all\.min\.css/i,
+        /fontawesome\.min\.css/i,
+        /\/cache\/fonts\/.*\/google-fonts\/css\/.*\.css/i,
+        /astra-addon-[^\/]*\.css/i,
+        /custom-frontend\.min\.css/i,
+        /custom-pro-widget-call-to-action\.min\.css/i,
+        /custom-pro-widget-nav-menu\.min\.css/i,
+        /custom-widget-icon-list\.min\.css/i,
+        /elementor-icons\.min\.css/i,
+        /ep-font\.css/i,
+        /ep-helper\.css/i,
+        /post-\d+\.css/i,
+        /swiper\.min\.css/i,
+        /transitions\.min\.css/i,
+        /v4-shims\.min\.css/i,
+        /widget-posts\.min\.css/i
     ];
 
     /**
