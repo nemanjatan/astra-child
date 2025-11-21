@@ -575,6 +575,30 @@ input[type=search]:focus {
     content: "\f167"
 }
 
+@font-face {
+    font-family: "Font Awesome 5 Free";
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url("../fonts/fa-solid-900.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Font Awesome 5 Brands";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/fa-brands-400.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: eicons;
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/eicons.woff2") format("woff2");
+}
+
 .fab {
     font-family: "Font Awesome 5 Brands"
 }
@@ -3631,4 +3655,44 @@ ul.elementor-nav-menu--dropdown a,ul.elementor-nav-menu--dropdown a:focus,ul.ele
 
 .elementor-animation-grow:active,.elementor-animation-grow:focus,.elementor-animation-grow:hover {
     transform: scale(1.1)
+}
+
+.elementor-cta__button.elementor-button {
+    background: transparent;
+}
+
+.elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-bc6d722 .swiper-slide-bg {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2023/09/DSC00257-scaled.jpg);
+}
+
+.elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-27713cb .swiper-slide-bg {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2023/10/SP-1-v7-scaled.jpg);
+}
+
+.elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-85fd9c4 .swiper-slide-bg {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2024/01/EQUIVAQ-SOFTWARE-JOINS-MLC-CAD-SYSTEMS-3.jpg);
+}
+
+.elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-bc6d722 .swiper-slide-bg {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2023/09/DSC00257-scaled.jpg);
+}
+
+.elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-27713cb .swiper-slide-bg {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2023/10/SP-1-v7-scaled.jpg);
+}
+
+.elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-85fd9c4 .swiper-slide-bg {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2024/01/EQUIVAQ-SOFTWARE-JOINS-MLC-CAD-SYSTEMS-3.jpg);
+}
+
+.elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-bc6d722 .swiper-slide-bg {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2023/09/DSC00257-scaled.jpg);
+}
+
+.elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-27713cb .swiper-slide-bg {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2023/10/SP-1-v7-scaled.jpg);
+}
+
+.elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-85fd9c4 .swiper-slide-bg {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2024/01/EQUIVAQ-SOFTWARE-JOINS-MLC-CAD-SYSTEMS-3.jpg);
 }

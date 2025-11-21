@@ -70,6 +70,86 @@ function mlc_is_landing_page() {
 }
 
 /**
+ * Copy Font Awesome and Elementor icon fonts from plugins to theme
+ * This runs once to set up the fonts directory
+ */
+function mlc_setup_font_files() {
+    $theme_fonts_dir = get_stylesheet_directory() . '/fonts/';
+    
+    // Create fonts directory if it doesn't exist
+    if ( ! file_exists( $theme_fonts_dir ) ) {
+        wp_mkdir_p( $theme_fonts_dir );
+    }
+    
+    // Possible font file locations (try multiple paths)
+    $font_sources = array(
+        // Font Awesome fonts - try different possible locations
+        'fa-solid-900.woff2' => array(
+            WP_PLUGIN_DIR . '/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.woff2',
+            WP_PLUGIN_DIR . '/elementor/assets/lib/font-awesome/css/../webfonts/fa-solid-900.woff2',
+        ),
+        'fa-brands-400.woff2' => array(
+            WP_PLUGIN_DIR . '/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.woff2',
+            WP_PLUGIN_DIR . '/elementor/assets/lib/font-awesome/css/../webfonts/fa-brands-400.woff2',
+        ),
+        // Elementor icons
+        'eicons.woff2' => array(
+            WP_PLUGIN_DIR . '/elementor/assets/lib/eicons/fonts/eicons.woff2',
+            WP_PLUGIN_DIR . '/elementor/assets/lib/eicons/css/../fonts/eicons.woff2',
+        ),
+    );
+    
+    // Copy fonts if source exists and destination doesn't
+    foreach ( $font_sources as $filename => $possible_paths ) {
+        $dest = $theme_fonts_dir . $filename;
+        
+        // Skip if already exists
+        if ( file_exists( $dest ) ) {
+            continue;
+        }
+        
+        // Try each possible path
+        foreach ( $possible_paths as $source ) {
+            if ( file_exists( $source ) ) {
+                copy( $source, $dest );
+                break; // Successfully copied, move to next font
+            }
+        }
+    }
+}
+// Run on theme activation, admin init, and wp_loaded (to ensure fonts are copied)
+add_action( 'after_switch_theme', 'mlc_setup_font_files' );
+add_action( 'admin_init', 'mlc_setup_font_files' );
+add_action( 'wp_loaded', 'mlc_setup_font_files' );
+
+/**
+ * Preload Font Awesome fonts for better performance
+ */
+function mlc_preload_font_awesome_fonts() {
+    if ( ! mlc_is_landing_page() ) {
+        return;
+    }
+    
+    $fonts_dir = get_stylesheet_directory_uri() . '/fonts/';
+    
+    // Font Awesome 5 Free (Solid) - used by .fa and .fas
+    if ( file_exists( get_stylesheet_directory() . '/fonts/fa-solid-900.woff2' ) ) {
+        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'fa-solid-900.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+    }
+    
+    // Font Awesome 5 Brands - used by .fab
+    if ( file_exists( get_stylesheet_directory() . '/fonts/fa-brands-400.woff2' ) ) {
+        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'fa-brands-400.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+    }
+    
+    // Elementor Icons (eicons) - used by Elementor
+    if ( file_exists( get_stylesheet_directory() . '/fonts/eicons.woff2' ) ) {
+        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'eicons.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+    }
+}
+add_action( 'wp_head', 'mlc_preload_font_awesome_fonts', 0 );
+
+/**
  * Inline critical CSS in the head section
  */
 function mlc_inline_critical_css() {
@@ -82,6 +162,17 @@ function mlc_inline_critical_css() {
     if ( file_exists( $critical_css_path ) ) {
         $critical_css = file_get_contents( $critical_css_path );
         if ( ! empty( $critical_css ) ) {
+            // Replace relative font paths with absolute URLs
+            $fonts_url = get_stylesheet_directory_uri() . '/fonts/';
+            $critical_css = str_replace(
+                array(
+                    'url("../fonts/',
+                    "url('../fonts/",
+                ),
+                'url("' . $fonts_url,
+                $critical_css
+            );
+            
             // Minify the CSS (remove comments and extra whitespace)
             $critical_css = preg_replace( '/\s+/', ' ', $critical_css );
             $critical_css = preg_replace( '/\/\*.*?\*\//', '', $critical_css );
