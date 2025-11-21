@@ -1,3 +1,38 @@
+@font-face {
+    font-family: "Font Awesome 5 Free";
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url("../fonts/fa-solid-900.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Font Awesome 5 Brands";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/fa-brands-400.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: eicons;
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/eicons.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: 'element-pack';
+    font-style: normal;
+    font-weight: normal;
+    font-display: block;
+    src: url("../fonts/element-pack.woff2") format("woff2"),
+         url("../fonts/element-pack.woff") format("woff"),
+         url("../fonts/element-pack.ttf") format("truetype"),
+         url("../fonts/element-pack.svg#element-pack") format("svg");
+}
+
 .bdt-icon {
     margin: 0;
     border: none;
@@ -573,30 +608,6 @@ input[type=search]:focus {
 
 .fa-youtube:before {
     content: "\f167"
-}
-
-@font-face {
-    font-family: "Font Awesome 5 Free";
-    font-style: normal;
-    font-weight: 900;
-    font-display: swap;
-    src: url("../fonts/fa-solid-900.woff2") format("woff2");
-}
-
-@font-face {
-    font-family: "Font Awesome 5 Brands";
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url("../fonts/fa-brands-400.woff2") format("woff2");
-}
-
-@font-face {
-    font-family: eicons;
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url("../fonts/eicons.woff2") format("woff2");
 }
 
 .fab {
@@ -3695,4 +3706,149 @@ ul.elementor-nav-menu--dropdown a,ul.elementor-nav-menu--dropdown a:focus,ul.ele
 
 .elementor-57283 .elementor-element.elementor-element-cc8902d .elementor-repeater-item-85fd9c4 .swiper-slide-bg {
     background-image: url(https://www.mlc-cad.com/wp-content/uploads/2024/01/EQUIVAQ-SOFTWARE-JOINS-MLC-CAD-SYSTEMS-3.jpg);
+}
+
+.elementor-57283 .elementor-element.elementor-element-5b93419:not(.elementor-motion-effects-element-type-background), .elementor-57283 .elementor-element.elementor-element-5b93419 > .elementor-motion-effects-container > .elementor-motion-effects-layer {
+    background-image: url(https://www.mlc-cad.com/wp-content/uploads/2025/11/MLC-CAD-Systems-SOLIDWORKS-PROMO-30th-Anniversary-Discount-5-desktop.webp);
+    background-position: center center;
+    background-size: cover;
+}
+
+.elementor-57283 .elementor-element.elementor-element-5b93419 {
+    transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
+}
+
+.elementor-57283 .elementor-element.elementor-element-5b93419 > .elementor-container {
+    min-height: 566px;
+}
+
+.elementor-section.elementor-section-items-middle>.elementor-container {
+    align-items: center;
+}
+
+.elementor-section .elementor-container {
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .elementor-column.elementor-col-100, .elementor-column[data-col="100"] {
+        width: 100%;
+    }
+}
+
+.elementor:not(.elementor-bc-flex-widget) .elementor-widget-wrap {
+    display: flex;
+}
+
+.elementor-widget-wrap {
+    align-content: flex-start;
+    flex-wrap: wrap;
+    position: relative;
+    width: 100%;
+}
+
+.elementor-57283 .elementor-element.elementor-element-9c033ff {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.elementor-57283 .elementor-element.elementor-element-9c033ff {
+    width: var(--container-widget-width, 50%);
+    max-width: 50%;
+    --container-widget-width: 50%;
+    --container-widget-flex-grow: 0;
+    align-self: center;
+    text-align: left;
+}
+
+.elementor-widget:not(:last-child).elementor-widget__width-initial {
+    margin-bottom: 0;
+}
+
+.elementor-57283 .elementor-element.elementor-element-f882e73 {
+    margin-left: auto;
+    margin-right: auto;
+}
+.elementor-57283 .elementor-element.elementor-element-f882e73 {
+    width: var(--container-widget-width, 51%);
+    max-width: 51%;
+    --container-widget-width: 51%;
+    --container-widget-flex-grow: 0;
+    text-align: left;
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--e-global-color-7a704498);
+}
+
+.elementor-57283 .elementor-element.elementor-element-f882e73 > .elementor-widget-container {
+    margin: 15px 26px 26px 26px;
+}
+.elementor-element:where(:not(.e-con)):where(:not(.e-div-block-base)) .elementor-widget-container, .elementor-element:where(:not(.e-con)):where(:not(.e-div-block-base)):not(:has(.elementor-widget-container)) {
+    transition: background .3s, border .3s, border-radius .3s, box-shadow .3s, transform var(--e-transform-transition-duration, .4s);
+}
+
+.elementor-57283 .elementor-element.elementor-element-f882e73 p {
+    color: #ffffff;
+}
+
+.elementor-57283 .elementor-element.elementor-element-82845f7 {
+    margin-left: auto;
+    margin-right: auto;
+}
+.elementor-57283 .elementor-element.elementor-element-82845f7 {
+    width: var(--container-widget-width, 50%);
+    max-width: 50%;
+    --container-widget-width: 50%;
+    --container-widget-flex-grow: 0;
+}
+
+.elementor-57283 .elementor-element.elementor-element-82845f7 > .elementor-widget-container {
+    margin: 0px 20px 0px 20px;
+    padding: 0px 0px 0px 0px;
+}
+.elementor-element:where(:not(.e-con)):where(:not(.e-div-block-base)) .elementor-widget-container, .elementor-element:where(:not(.e-con)):where(:not(.e-div-block-base)):not(:has(.elementor-widget-container)) {
+    transition: background .3s, border .3s, border-radius .3s, box-shadow .3s, transform var(--e-transform-transition-duration, .4s);
+}
+
+.elementor-57283 .elementor-element.elementor-element-82845f7 .elementor-button {
+    font-family: "Open Sans", Sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 29.75px;
+    border-style: solid;
+    border-width: 2px 2px 2px 2px;
+    border-radius: 25px 25px 25px 25px;
+    padding: 13px 13px 13px 13px;
+}
+.elementor-kit-16027 button, .elementor-kit-16027 input[type="button"], .elementor-kit-16027 input[type="submit"], .elementor-kit-16027 .elementor-button {
+    background-color: #FF0000;
+}
+.elementor-align-center .elementor-button, .elementor-align-left .elementor-button, .elementor-align-right .elementor-button {
+    width: auto;
+}
+.elementor a {
+    box-shadow: none;
+    text-decoration: none;
+}
+
+.elementor-button {
+    color: #fff;
+    display: inline-block;
+    fill: #fff;
+    text-align: center;
+    transition: all .3s;
+}
+
+.elementor-element-9c033ff h2 {
+    color: #FFFFFF;
+    font-family: "Arial", Sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    transform: translateX(0);
+    opacity: 1;
+    margin: 20px !important;
 }

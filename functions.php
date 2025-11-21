@@ -55,6 +55,11 @@ add_filter( 'all_plugins', 'mlc_cad_abc' );
  * Modify this function to match your landing page criteria
  */
 function mlc_is_landing_page() {
+    // Don't apply optimizations in Elementor edit mode
+    if ( mlc_is_elementor_edit_mode() ) {
+        return false;
+    }
+    
     // Check if it's the front page
     if ( is_front_page() ) {
         return true;
@@ -65,6 +70,33 @@ function mlc_is_landing_page() {
     // if ( is_page_template( 'landing-page.php' ) ) {
     //     return true;
     // }
+    
+    return false;
+}
+
+/**
+ * Check if we're in Elementor edit mode
+ */
+function mlc_is_elementor_edit_mode() {
+    // Check if we're in admin and editing with Elementor
+    if ( is_admin() && isset( $_GET['action'] ) && $_GET['action'] === 'elementor' ) {
+        return true;
+    }
+    
+    // Check if Elementor preview mode is active
+    if ( isset( $_GET['elementor-preview'] ) ) {
+        return true;
+    }
+    
+    // Check if Elementor editor is active (using Elementor's API if available)
+    if ( class_exists( '\Elementor\Plugin' ) ) {
+        if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
+            return true;
+        }
+        if ( \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
+            return true;
+        }
+    }
     
     return false;
 }
@@ -97,6 +129,19 @@ function mlc_setup_font_files() {
             WP_PLUGIN_DIR . '/elementor/assets/lib/eicons/fonts/eicons.woff2',
             WP_PLUGIN_DIR . '/elementor/assets/lib/eicons/css/../fonts/eicons.woff2',
         ),
+        // Element Pack icons
+        'element-pack.woff2' => array(
+            WP_PLUGIN_DIR . '/bdthemes-element-pack/assets/fonts/element-pack.woff2',
+        ),
+        'element-pack.woff' => array(
+            WP_PLUGIN_DIR . '/bdthemes-element-pack/assets/fonts/element-pack.woff',
+        ),
+        'element-pack.ttf' => array(
+            WP_PLUGIN_DIR . '/bdthemes-element-pack/assets/fonts/element-pack.ttf',
+        ),
+        'element-pack.svg' => array(
+            WP_PLUGIN_DIR . '/bdthemes-element-pack/assets/fonts/element-pack.svg',
+        ),
     );
     
     // Copy fonts if source exists and destination doesn't
@@ -123,6 +168,20 @@ add_action( 'admin_init', 'mlc_setup_font_files' );
 add_action( 'wp_loaded', 'mlc_setup_font_files' );
 
 /**
+ * Add preconnect hints for critical third-party domains
+ */
+function mlc_add_preconnect_hints() {
+    if ( ! mlc_is_landing_page() ) {
+        return;
+    }
+    echo '<link rel="preconnect" href="https://mlccadsystems.us-6.evergage.com" crossorigin>' . "\n";
+    echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
+    echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+    // Uncomment if needed: echo '<link rel="preconnect" href="https://i.simpli.fi" crossorigin>' . "\n";
+}
+add_action( 'wp_head', 'mlc_add_preconnect_hints', 0 );
+
+/**
  * Preload Font Awesome fonts for better performance
  */
 function mlc_preload_font_awesome_fonts() {
@@ -145,6 +204,11 @@ function mlc_preload_font_awesome_fonts() {
     // Elementor Icons (eicons) - used by Elementor
     if ( file_exists( get_stylesheet_directory() . '/fonts/eicons.woff2' ) ) {
         echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'eicons.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+    }
+    
+    // Element Pack Icons - used by Element Pack plugin
+    if ( file_exists( get_stylesheet_directory() . '/fonts/element-pack.woff2' ) ) {
+        echo '<link rel="preload" href="' . esc_url( $fonts_dir . 'element-pack.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
     }
 }
 add_action( 'wp_head', 'mlc_preload_font_awesome_fonts', 0 );
@@ -259,3 +323,10 @@ function mlc_enqueue_deferred_css_loader() {
     );
 }
 add_action( 'wp_enqueue_scripts', 'mlc_enqueue_deferred_css_loader' );
+
+add_filter( 'wp_content_img_tag', function( $html, $context, $attachment_id ) {
+    if ( $attachment_id == 86690 ) {
+        $html = str_replace( '<img ', '<img fetchpriority="high" ', $html );
+    }
+    return $html;
+}, 10, 3 );
