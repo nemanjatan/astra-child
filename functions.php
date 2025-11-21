@@ -35,6 +35,25 @@ function mlc_lazy_video_script() {
 }
 add_action('wp_enqueue_scripts', 'mlc_lazy_video_script');
 
+/**
+ * Enqueue hero slider replacement script
+ * Replaces static hero section with slider on scroll
+ */
+function mlc_hero_slider_replace_script() {
+    if ( ! mlc_is_landing_page() ) {
+        return;
+    }
+    
+    wp_enqueue_script(
+        'mlc-hero-slider-replace',
+        get_stylesheet_directory_uri() . '/js/hero-slider-replace.js',
+        array(),
+        '1.0.0',
+        true
+    );
+}
+add_action('wp_enqueue_scripts', 'mlc_hero_slider_replace_script');
+
 
 function astra_child_hide_abc() {
     echo '<style type="text/css">#wp-admin-bar-wp-rocket { display: none !important; }</style>';
@@ -182,6 +201,32 @@ function mlc_add_preconnect_hints() {
 add_action( 'wp_head', 'mlc_add_preconnect_hints', 0 );
 
 /**
+ * Preload LCP image for faster loading
+ * Includes imagesrcset and imagesizes for responsive image preloading
+ * Uses WebP format for better compression and faster loading
+ */
+function mlc_preload_lcp_image() {
+    if ( ! mlc_is_landing_page() ) {
+        return;
+    }
+    
+    // Preload the LCP image (static hero section image)
+    // This is the SOLIDWORKS promo image that appears in the static hero section
+    // Use WebP format for better compression and faster loading
+    // Include srcset and sizes to preload the correct responsive variant
+    echo '<link rel="preload" as="image"
+        href="https://www.mlc-cad.com/wp-content/uploads/2025/11/MLC-CAD-Systems-SOLIDWORKS-PROMO-30th-Anniversary-Discount-5-desktop.webp"
+        imagesrcset="
+            https://www.mlc-cad.com/wp-content/uploads/2025/11/MLC-CAD-Systems-SOLIDWORKS-PROMO-30th-Anniversary-Discount-5-desktop.webp 1920w,
+            https://www.mlc-cad.com/wp-content/uploads/2025/11/MLC-CAD-Systems-SOLIDWORKS-PROMO-30th-Anniversary-Discount-5-desktop.webp 1536w
+        "
+        imagesizes="(max-width: 1920px) 100vw, 1920px"
+        fetchpriority="high"
+    >' . "\n";
+}
+add_action( 'wp_head', 'mlc_preload_lcp_image', 0 );
+
+/**
  * Preload Font Awesome fonts for better performance
  */
 function mlc_preload_font_awesome_fonts() {
@@ -245,6 +290,35 @@ function mlc_inline_critical_css() {
             echo '<style id="mlc-critical-css">' . $critical_css . '</style>' . "\n";
         }
     }
+    
+    // Add CSS to hide slider initially and show static section
+    // This provides a fallback if JavaScript hasn't loaded yet
+    echo '<style id="mlc-hero-slider-css">
+        /* Hide slider section initially */
+        .hero-slider,
+        .elementor-element-2696e17 {
+            display: none !important;
+        }
+        /* Show static section initially */
+        .hero-static,
+        .elementor-element-5b93419 {
+            display: block !important;
+        }
+        /* When slider is ready, show it and hide static */
+        .hero-slider-ready .hero-slider,
+        .hero-slider-ready .elementor-element-2696e17 {
+            display: block !important;
+        }
+        .hero-slider-ready .hero-static,
+        .hero-slider-ready .elementor-element-5b93419 {
+            display: none !important;
+        }
+        /* Ensure LCP image in static hero section loads with high priority */
+        .hero-static img,
+        .elementor-element-5b93419 img {
+            content-visibility: auto;
+        }
+    </style>' . "\n";
 }
 add_action( 'wp_head', 'mlc_inline_critical_css', 1 );
 
@@ -324,9 +398,51 @@ function mlc_enqueue_deferred_css_loader() {
 }
 add_action( 'wp_enqueue_scripts', 'mlc_enqueue_deferred_css_loader' );
 
-add_filter( 'wp_content_img_tag', function( $html, $context, $attachment_id ) {
-    if ( $attachment_id == 86690 ) {
-        $html = str_replace( '<img ', '<img fetchpriority="high" ', $html );
+/**
+ * Add fetchpriority="high" to LCP image in static hero section
+ */
+function mlc_add_fetchpriority_to_lcp_image( $html, $context, $attachment_id ) {
+    if ( ! mlc_is_landing_page() ) {
+        return $html;
     }
+    
+    // Add fetchpriority="high" to the LCP image (attachment ID 86690)
+    if ( $attachment_id == 86690 ) {
+        // Check if fetchpriority is not already present
+        if ( strpos( $html, 'fetchpriority' ) === false ) {
+            $html = str_replace( '<img ', '<img fetchpriority="high" ', $html );
+        }
+    }
+    
     return $html;
-}, 10, 3 );
+}
+add_filter( 'wp_content_img_tag', 'mlc_add_fetchpriority_to_lcp_image', 10, 3 );
+
+/**
+ * Add fetchpriority="high" to images in static hero section via output buffering
+ * This catches images that might not go through wp_content_img_tag filter
+ */
+function mlc_add_fetchpriority_to_hero_images( $content ) {
+    if ( ! mlc_is_landing_page() || is_admin() ) {
+        return $content;
+    }
+    
+    // Add fetchpriority="high" to images in the static hero section
+    // Match images within the hero-static section or elementor-element-5b93419
+    $content = preg_replace_callback(
+        '/(<section[^>]*class="[^"]*(?:hero-static|elementor-element-5b93419)[^"]*"[^>]*>.*?)(<img\s+)([^>]*>)/is',
+        function( $matches ) {
+            $img_tag = $matches[2] . $matches[3];
+            // Check if fetchpriority is not already present
+            if ( strpos( $img_tag, 'fetchpriority' ) === false ) {
+                $img_tag = str_replace( '<img ', '<img fetchpriority="high" ', $img_tag );
+            }
+            return $matches[1] . $img_tag;
+        },
+        $content,
+        1 // Limit to first match (the static hero section)
+    );
+    
+    return $content;
+}
+add_filter( 'the_content', 'mlc_add_fetchpriority_to_hero_images', 999 );
