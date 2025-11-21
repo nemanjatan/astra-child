@@ -49,3 +49,91 @@ function mlc_cad_abc( $plugins ) {
     return $plugins;
 }
 add_filter( 'all_plugins', 'mlc_cad_abc' );
+
+/**
+ * Check if current page is a landing page
+ * Modify this function to match your landing page criteria
+ */
+function mlc_is_landing_page() {
+    // Check if it's the front page
+    if ( is_front_page() ) {
+        return true;
+    }
+    
+    // Add additional checks for landing pages here
+    // For example: specific page templates, page IDs, or slugs
+    // if ( is_page_template( 'landing-page.php' ) ) {
+    //     return true;
+    // }
+    
+    return false;
+}
+
+/**
+ * Inline critical CSS in the head section
+ */
+function mlc_inline_critical_css() {
+    if ( ! mlc_is_landing_page() ) {
+        return;
+    }
+    
+    $critical_css_path = get_stylesheet_directory() . '/css/mlc-cad-critical.css';
+    
+    if ( file_exists( $critical_css_path ) ) {
+        $critical_css = file_get_contents( $critical_css_path );
+        if ( ! empty( $critical_css ) ) {
+            // Minify the CSS (remove comments and extra whitespace)
+            $critical_css = preg_replace( '/\s+/', ' ', $critical_css );
+            $critical_css = preg_replace( '/\/\*.*?\*\//', '', $critical_css );
+            $critical_css = trim( $critical_css );
+            
+            echo '<style id="mlc-critical-css">' . $critical_css . '</style>' . "\n";
+        }
+    }
+}
+add_action( 'wp_head', 'mlc_inline_critical_css', 1 );
+
+/**
+ * Remove CSS links by URL pattern using style_loader_tag filter
+ * This removes the CSS from initial page load
+ */
+function mlc_remove_css_by_url( $tag, $handle, $href ) {
+    if ( ! mlc_is_landing_page() ) {
+        return $tag;
+    }
+    
+    // Patterns to match the CSS files we want to defer (version-agnostic)
+    $patterns = array(
+        '/bdt-uikit\.css/i',
+        '/roboto\.css/i',
+        '/\/astra\/assets\/css\/minified\/style\.min\.css/i',
+        '/font-awesome[^\/]*\/css\/all\.min\.css/i',
+    );
+    
+    foreach ( $patterns as $pattern ) {
+        if ( preg_match( $pattern, $href ) ) {
+            return ''; // Return empty string to remove the link tag
+        }
+    }
+    
+    return $tag;
+}
+add_filter( 'style_loader_tag', 'mlc_remove_css_by_url', 10, 3 );
+
+/**
+ * Enqueue script to load deferred CSS after user interaction
+ */
+function mlc_enqueue_deferred_css_loader() {
+    if ( ! mlc_is_landing_page() ) {
+        return;
+    }
+    
+    wp_enqueue_script(
+        'mlc-deferred-css-loader',
+        get_stylesheet_directory_uri() . '/js/deferred-css-loader.js',
+        array(),
+        '1.0.0',
+        true
+    );
+}
+add_action( 'wp_enqueue_scripts', 'mlc_enqueue_deferred_css_loader' );
