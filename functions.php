@@ -22,37 +22,76 @@ function astra_child_enqueue_styles() {
 }
 add_action( 'wp_enqueue_scripts', 'astra_child_enqueue_styles' );
 
-function mlc_lazy_video_script() {
-    if ( is_front_page() ) {
-        wp_enqueue_script(
-            'mlc-lazy-video',
-            get_stylesheet_directory_uri() . '/js/lazy-video.js',
-            array(),
-            '1.0',
-            true
-        );
-    }
+/**
+ * Simple JavaScript minification
+ * Removes comments and unnecessary whitespace while preserving functionality
+ */
+function mlc_minify_js( $js ) {
+    // Remove single-line comments (but preserve URLs like http://)
+    $js = preg_replace( '/(?<!:|\'|")\/\/.*$/m', '', $js );
+    // Remove multi-line comments
+    $js = preg_replace( '/\/\*[\s\S]*?\*\//', '', $js );
+    // Remove leading/trailing whitespace from each line
+    $js = preg_replace( '/^\s+|\s+$/m', '', $js );
+    // Collapse multiple spaces/tabs/newlines to single space
+    $js = preg_replace( '/\s+/', ' ', $js );
+    // Remove spaces around certain operators (but be careful with + and -)
+    $js = preg_replace( '/\s*([\{\}\(\)\[\];,=*\/%<>!&|?:])\s*/', '$1', $js );
+    // Remove spaces before semicolons and commas
+    $js = preg_replace( '/\s+([;,])/', '$1', $js );
+    // Remove spaces after opening and before closing brackets
+    $js = preg_replace( '/\(\s+/', '(', $js );
+    $js = preg_replace( '/\s+\)/', ')', $js );
+    $js = preg_replace( '/\{\s+/', '{', $js );
+    $js = preg_replace( '/\s+\}/', '}', $js );
+    // Final trim
+    $js = trim( $js );
+    return $js;
 }
-add_action('wp_enqueue_scripts', 'mlc_lazy_video_script');
 
 /**
- * Enqueue hero slider replacement script
- * Replaces static hero section with slider on scroll
+ * Inline and minify JavaScript files in header
+ * This eliminates HTTP requests and reduces critical path latency
  */
-function mlc_hero_slider_replace_script() {
+function mlc_inline_js_in_header() {
     if ( ! mlc_is_landing_page() ) {
         return;
     }
     
-    wp_enqueue_script(
-        'mlc-hero-slider-replace',
-        get_stylesheet_directory_uri() . '/js/hero-slider-replace.js',
-        array(),
-        '1.0.0',
-        true
+    $js_dir = get_stylesheet_directory() . '/js/';
+    $combined_js = '';
+    
+    // Load and combine all JS files in order
+    $js_files = array(
+        'lazy-video.js',
+        'hero-slider-replace.js',
+        'deferred-css-loader.js',
     );
+    
+    foreach ( $js_files as $file ) {
+        $file_path = $js_dir . $file;
+        if ( file_exists( $file_path ) && is_readable( $file_path ) ) {
+            $js_content = file_get_contents( $file_path );
+            if ( $js_content !== false ) {
+                $combined_js .= $js_content . "\n";
+            }
+        }
+    }
+    
+    if ( ! empty( $combined_js ) ) {
+        // Minify the combined JavaScript
+        $minified_js = mlc_minify_js( $combined_js );
+        
+        // Only output if minified JS is not empty
+        if ( ! empty( trim( $minified_js ) ) ) {
+            // Output inline script in header
+            echo '<script>' . "\n";
+            echo $minified_js . "\n";
+            echo '</script>' . "\n";
+        }
+    }
 }
-add_action('wp_enqueue_scripts', 'mlc_hero_slider_replace_script');
+add_action( 'wp_head', 'mlc_inline_js_in_header', 5 );
 
 
 function astra_child_hide_abc() {
@@ -388,22 +427,9 @@ function mlc_remove_css_by_url( $tag, $handle, $href ) {
 add_filter( 'style_loader_tag', 'mlc_remove_css_by_url', 10, 3 );
 
 /**
- * Enqueue script to load deferred CSS after user interaction
+ * Note: deferred-css-loader.js is now inlined in header via mlc_inline_js_in_header()
+ * This function is kept for reference but no longer enqueues the script
  */
-function mlc_enqueue_deferred_css_loader() {
-    if ( ! mlc_is_landing_page() ) {
-        return;
-    }
-    
-    wp_enqueue_script(
-        'mlc-deferred-css-loader',
-        get_stylesheet_directory_uri() . '/js/deferred-css-loader.js',
-        array(),
-        '1.0.0',
-        true
-    );
-}
-add_action( 'wp_enqueue_scripts', 'mlc_enqueue_deferred_css_loader' );
 
 /**
  * Remove render-blocking CSS from HTML output using output buffering
